@@ -4,8 +4,8 @@ const profile = {
   title: "مراقب جوده ومشرف دعاية وإعلان",
   about: "تقديم خدمات الدعاية والإعلان وحلول الطباعة للمشاريع المختلفه والمؤسسات والشركات والأفراد بأحدث الطرق والوسائل الإعلانيه والتسويقيه الحديثه وبأقل التكاليف وبأعلى جودة ممكنه",
 
-  logo: "https://ibb.co/7xJLM5vY",
-  photo: "https://ibb.co/kswX7BxG",
+  logo: "https://i.ibb.co/wZNjGXy0/illusion-plus-logo-cover.png",
+  photo: "https://i.ibb.co/W4Mfh56H/01.png",
 
   phone: "+201017185600",
   whatsapp: "+201017185600",
