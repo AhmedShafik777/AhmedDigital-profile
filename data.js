@@ -1,11 +1,11 @@
 const profile = {
   type: "person", // person أو company
   name: "أحمد محمد",
-  title: "مستشار تسويق رقمي",
-  about: "أساعد أصحاب الأعمال في بناء حضور رقمي قوي وزيادة المبيعات.",
+  title: "مستشار تسويق رقمي ونمو أعمال",
+  about: "أساعد أصحاب الأعمال على بناء حضور رقمي مؤثر، وتحويل الأفكار إلى استراتيجيات تسويقية تحقق نموًا مستدامًا.",
 
-  logo: "assets/logo.png",
-  photo: "assets/profile.jpg",
+  logo: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=600&q=85",
+  photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=90",
 
   phone: "+966500000000",
   whatsapp: "966500000000",

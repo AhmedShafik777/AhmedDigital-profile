@@ -50,7 +50,7 @@
 
             const content = `const profile = ${JSON.stringify(data, null, 2)};`;
 
-            const blob = new Blob([content], {type: "text/javascript"});
+            const blob = new Blob([content], { type: "text/javascript" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
             link.download = "data.js";

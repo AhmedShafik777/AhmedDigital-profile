@@ -1,167 +1,265 @@
-// عرض بيانات الهوية
-document.getElementById("profileName").textContent = profile.name;
-document.getElementById("profileTitle").textContent = profile.title;
-document.getElementById("profileAbout").textContent = profile.about;
+const byId = (id) => document.getElementById(id);
 
-if (profile.type === "company") {
-  document.getElementById("profileImage").src = profile.logo;
-} else {
-  document.getElementById("profileImage").src = profile.photo;
+function setText(id, value) {
+  byId(id).textContent = value || "";
 }
 
-// أزرار التواصل
-document.getElementById("callBtn").href = `tel:${profile.phone}`;
-document.getElementById("whatsappBtn").href = `https://wa.me/${profile.whatsapp}`;
-document.getElementById("emailBtn").href = `mailto:${profile.email}`;
-document.getElementById("websiteBtn").href = profile.website;
-document.getElementById("locationBtn").href = profile.location;
-document.getElementById("vcardBtn").href = profile.vcard;
+function setExternalLink(element, url) {
+  if (!url) {
+    element.hidden = true;
+    return;
+  }
+  element.href = url;
+}
 
-// روابط السوشيال ميديا
-const socialLabels = {
-  facebook: "فيسبوك",
-  instagram: "إنستغرام",
-  linkedin: "لينكدإن",
-  x: "X",
-  tiktok: "تيك توك",
-  youtube: "يوتيوب"
-};
+function renderProfile() {
+  setText("profileName", profile.name);
+  setText("profileTitle", profile.title);
+  setText("profileAbout", profile.about);
+  setText("currentYear", new Date().getFullYear());
 
-const socialContainer = document.getElementById("socialLinks");
+  const image = byId("profileImage");
+  image.src = profile.type === "company" ? profile.logo : profile.photo;
+  image.alt = profile.type === "company"
+    ? `شعار ${profile.name}`
+    : `صورة ${profile.name}`;
 
-for (const key in profile.social) {
-  if (profile.social[key]) {
+  setExternalLink(byId("callBtn"), profile.phone ? `tel:${profile.phone}` : "");
+  setExternalLink(byId("whatsappBtn"), profile.whatsapp
+    ? `https://wa.me/${profile.whatsapp.replace(/\D/g, "")}`
+    : "");
+  setExternalLink(byId("emailBtn"), profile.email ? `mailto:${profile.email}` : "");
+  setExternalLink(byId("websiteBtn"), profile.website);
+  setExternalLink(byId("locationBtn"), profile.location);
+  setExternalLink(byId("vcardBtn"), profile.vcard);
+
+  const socialLabels = {
+    facebook: "فيسبوك",
+    instagram: "إنستغرام",
+    linkedin: "لينكدإن",
+    x: "X",
+    tiktok: "تيك توك",
+    youtube: "يوتيوب"
+  };
+  const socialContainer = byId("socialLinks");
+
+  Object.entries(profile.social || {}).forEach(([network, url]) => {
+    if (!url || !socialLabels[network]) return;
     const link = document.createElement("a");
-    link.href = profile.social[key];
+    link.href = url;
     link.target = "_blank";
-    link.rel = "noopener";
-    link.textContent = socialLabels[key];
+    link.rel = "noopener noreferrer";
+    link.textContent = socialLabels[network];
     socialContainer.appendChild(link);
-  }
+  });
 }
 
-// توليد QR Code لرابط الصفحة الحالية
-const pageUrl = window.location.href;
+function createCardImage(src, alt, className = "card-image") {
+  const image = document.createElement("img");
+  image.className = className;
+  image.src = src;
+  image.alt = alt || "";
+  image.loading = "lazy";
+  image.addEventListener("error", () => {
+    image.hidden = true;
+  }, { once: true });
+  return image;
+}
 
-new QRCode(document.getElementById("qrcode"), {
-  text: pageUrl,
-  width: 220,
-  height: 220,
-  colorDark: "#000000",
-  colorLight: "#ffffff",
-  correctLevel: QRCode.CorrectLevel.H
-});
+function showMessage(id, message) {
+  const element = byId(id);
+  element.textContent = message;
+  element.hidden = false;
+}
 
-// مشاركة الرابط
-document.getElementById("shareLink").addEventListener("click", async () => {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: profile.name,
-        text: "ملفي الرقمي",
-        url: pageUrl
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  } else {
-    await navigator.clipboard.writeText(pageUrl);
-    alert("تم نسخ الرابط");
-  }
-});
+function renderProducts(data) {
+  const categories = Array.isArray(data.categories) ? data.categories : [];
+  const categoryButtons = byId("categoryButtons");
+  const productsList = byId("productsList");
 
-// تحميل QR
-document.getElementById("downloadQr").addEventListener("click", () => {
-  const qrImage = document.querySelector("#qrcode img") || document.querySelector("#qrcode canvas");
-
-  if (!qrImage) return;
-
-  const link = document.createElement("a");
-  link.download = "digital-profile-qr.png";
-
-  if (qrImage.tagName === "CANVAS") {
-    link.href = qrImage.toDataURL("image/png");
-  } else {
-    link.href = qrImage.src;
+  if (categories.length === 0) {
+    showMessage("productsMessage", "لا توجد خدمات معروضة حاليًا.");
+    return;
   }
 
-  link.click();
-});
-async function loadProducts() {
-  const response = await fetch("products.json");
-  const data = await response.json();
-
-  const categoryButtons = document.getElementById("categoryButtons");
-  const productsList = document.getElementById("productsList");
-
-  function showCategory(categoryId) {
-    productsList.innerHTML = "";
-
-    const category = data.categories.find(
-      item => item.id === categoryId
-    );
-
-    category.items.forEach(product => {
-      const card = document.createElement("div");
+  function showCategory(category) {
+    productsList.replaceChildren();
+    category.items.forEach((product) => {
+      const card = document.createElement("article");
       card.className = "product-card";
+      card.appendChild(createCardImage(product.image, product.title));
 
-      card.innerHTML = `
-        <img src="${product.image}" alt="${product.title}">
-        <div class="product-card-content">
-          <h3>${product.title}</h3>
-          <p>${product.description}</p>
-        </div>
-      `;
+      const content = document.createElement("div");
+      content.className = "card-content";
+      const label = document.createElement("span");
+      label.className = "card-label";
+      label.textContent = category.name;
+      const title = document.createElement("h3");
+      title.textContent = product.title;
+      const description = document.createElement("p");
+      description.textContent = product.description;
+      content.append(label, title, description);
 
+      if (product.price) {
+        const price = document.createElement("p");
+        price.className = "card-label";
+        price.textContent = product.price;
+        content.appendChild(price);
+      }
+
+      if (product.link) {
+        const link = document.createElement("a");
+        link.className = "card-link";
+        link.href = product.link;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "اكتشف الخدمة ";
+        const arrow = document.createElement("span");
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = "↗";
+        link.appendChild(arrow);
+        content.appendChild(link);
+      }
+
+      card.appendChild(content);
       productsList.appendChild(card);
     });
   }
 
-  data.categories.forEach((category, index) => {
+  categories.forEach((category, index) => {
     const button = document.createElement("button");
     button.className = "category-btn";
+    button.type = "button";
     button.textContent = category.name;
-
-    if (index === 0) {
-      button.classList.add("active");
-    }
-
+    button.setAttribute("aria-pressed", String(index === 0));
+    if (index === 0) button.classList.add("active");
     button.addEventListener("click", () => {
-      document.querySelectorAll(".category-btn")
-        .forEach(btn => btn.classList.remove("active"));
-
+      categoryButtons.querySelectorAll(".category-btn").forEach((item) => {
+        item.classList.remove("active");
+        item.setAttribute("aria-pressed", "false");
+      });
       button.classList.add("active");
-      showCategory(category.id);
+      button.setAttribute("aria-pressed", "true");
+      showCategory(category);
     });
-
     categoryButtons.appendChild(button);
   });
 
-  showCategory(data.categories[0].id);
+  showCategory(categories[0]);
 }
 
-loadProducts();
-async function loadArticles() {
-  const response = await fetch("articles.json");
-  const data = await response.json();
+function formatDate(dateValue) {
+  const date = new Date(`${dateValue}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return dateValue || "";
+  return new Intl.DateTimeFormat("ar", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  }).format(date);
+}
 
-  const articlesList = document.getElementById("articlesList");
+function renderArticles(data) {
+  const articles = Array.isArray(data.articles) ? data.articles : [];
+  const articlesList = byId("articlesList");
 
-  data.articles.forEach(article => {
-    const card = document.createElement("div");
-    card.className = "product-card";
+  if (articles.length === 0) {
+    showMessage("articlesMessage", "لا توجد مقالات منشورة حاليًا.");
+    return;
+  }
 
-    card.innerHTML = `
-      <img src="${article.image}" alt="${article.title}">
-      <div class="product-card-content">
-        <h3>${article.title}</h3>
-        <p>${article.date}</p>
-        <p>${article.content}</p>
-      </div>
-    `;
+  articles.forEach((article) => {
+    const card = document.createElement("article");
+    card.className = "article-card";
+    card.appendChild(createCardImage(article.image, article.title));
 
+    const content = document.createElement("div");
+    content.className = "card-content";
+    const date = document.createElement("time");
+    date.className = "article-date";
+    date.dateTime = article.date || "";
+    date.textContent = formatDate(article.date);
+    const title = document.createElement("h3");
+    title.textContent = article.title;
+    const summary = document.createElement("p");
+    summary.textContent = article.content;
+    content.append(date, title, summary);
+    card.appendChild(content);
     articlesList.appendChild(card);
   });
 }
 
-loadArticles();
+async function loadJson(path, render, messageId) {
+  try {
+    const response = await fetch(path);
+    if (!response.ok) {
+      throw new Error(`تعذر تحميل ${path}: ${response.status}`);
+    }
+    render(await response.json());
+  } catch (error) {
+    console.error(error);
+    showMessage(messageId, "تعذر تحميل المحتوى. تأكد من تشغيل الموقع عبر خادم ويب.");
+  }
+}
+
+function renderQrCode() {
+  if (typeof QRCode === "undefined") {
+    showMessage("shareFeedback", "تعذر تحميل أداة رمز QR. تحقق من اتصال الإنترنت.");
+    return;
+  }
+
+  new QRCode(byId("qrcode"), {
+    text: window.location.href,
+    width: 132,
+    height: 132,
+    colorDark: "#254736",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+function setupShare() {
+  const feedback = byId("shareFeedback");
+  byId("shareLink").addEventListener("click", async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: profile.name,
+          text: "تعرّف على الملف الرقمي",
+          url: window.location.href
+        });
+        feedback.textContent = "تم فتح خيارات المشاركة.";
+        return;
+      }
+      await navigator.clipboard.writeText(window.location.href);
+      feedback.textContent = "تم نسخ رابط الملف إلى الحافظة.";
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      console.error("تعذرت مشاركة رابط الملف.", error);
+      feedback.textContent = "تعذرت المشاركة. يمكنك نسخ رابط الصفحة من المتصفح.";
+    }
+  });
+
+  byId("downloadQr").addEventListener("click", () => {
+    const canvas = byId("qrcode").querySelector("canvas");
+    const image = byId("qrcode").querySelector("img");
+    const downloadLink = document.createElement("a");
+    downloadLink.download = "ahmed-digital-profile-qr.png";
+
+    if (canvas) {
+      downloadLink.href = canvas.toDataURL("image/png");
+    } else if (image) {
+      downloadLink.href = image.src;
+    } else {
+      feedback.textContent = "رمز QR غير جاهز للتحميل بعد.";
+      return;
+    }
+
+    downloadLink.click();
+  });
+}
+
+renderProfile();
+renderQrCode();
+setupShare();
+loadJson("products.json", renderProducts, "productsMessage");
+loadJson("articles.json", renderArticles, "articlesMessage");
