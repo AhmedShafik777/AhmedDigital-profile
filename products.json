@@ -1,0 +1,30 @@
+{
+    "categories": [
+        {
+            "id": "consulting",
+            "name": "الاستشارات",
+            "items": [
+                {
+                    "title": "استشارة تسويق رقمي",
+                    "description": "جلسة لتحليل الحساب والسوق ووضع خطة تسويقية.",
+                    "image": "products/images/consulting.jpg",
+                    "price": "",
+                    "link": ""
+                }
+            ]
+        },
+        {
+            "id": "design",
+            "name": "التصميم",
+            "items": [
+                {
+                    "title": "تصميم هوية بصرية",
+                    "description": "لوجو وألوان وخطوط وهوية متكاملة.",
+                    "image": "products/images/branding.jpg",
+                    "price": "",
+                    "link": ""
+                }
+            ]
+        }
+    ]
+}
