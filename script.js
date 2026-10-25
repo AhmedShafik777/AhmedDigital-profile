@@ -42,6 +42,7 @@ function createVCard() {
 }
 
 function renderProfile() {
+  document.title = `${profile.name} | الملف الرقمي`;
   setText("profileName", profile.name);
   setText("profileTitle", profile.title);
   setText("profileAbout", profile.about);
@@ -54,12 +55,13 @@ function renderProfile() {
     : `صورة ${profile.name}`;
   image.classList.toggle("company-logo", profile.type === "company");
 
+  const logoUrl = profile.logo?.trim();
   document.querySelectorAll(".brand-mark").forEach((mark) => {
     const logo = mark.querySelector(".brand-logo");
-    if (!profile.logo || !logo) return;
-    logo.addEventListener("load", () => mark.classList.add("has-logo"), { once: true });
+    if (!logo || !logoUrl) return;
+    mark.classList.add("has-logo");
     logo.addEventListener("error", () => mark.classList.remove("has-logo"), { once: true });
-    logo.src = profile.logo.trim();
+    logo.src = logoUrl;
   });
 
   setExternalLink(byId("callBtn"), profile.phone ? `tel:${profile.phone}` : "");
