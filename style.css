@@ -94,6 +94,28 @@ a:focus-visible {
     font-weight: 700;
 }
 
+.brand-mark.has-logo {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--white);
+}
+
+.brand-logo {
+    display: none;
+    width: 100%;
+    height: 100%;
+    padding: 2px;
+    object-fit: contain;
+}
+
+.brand-mark.has-logo .brand-logo {
+    display: block;
+}
+
+.brand-mark.has-logo .brand-fallback {
+    display: none;
+}
+
 .topbar-link {
     gap: 9px;
     color: var(--green);
@@ -271,6 +293,12 @@ p {
     height: 100%;
     object-fit: cover;
     object-position: center 35%;
+}
+
+.photo-frame img.company-logo {
+    padding: 12px;
+    object-fit: contain;
+    object-position: center;
 }
 
 .photo-caption {

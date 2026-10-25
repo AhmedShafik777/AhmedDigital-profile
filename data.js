@@ -10,7 +10,7 @@ const profile = {
   phone: "+201017185600",
   whatsapp: "+201017185600",
   email: "shafik.art@gmail.com",
-  website: " https://ahmedshafik777.github.io/AhmedDigital-profile/",
+  website: "https://ahmedshafik777.github.io/AhmedDigital-profile/",
   location: "https://www.google.com/maps/place/30%C2%B007'30.4%22N+31%C2%B020'49.0%22E/@30.1251164,31.3443683,17z/data=!3m1!4b1!4m4!3m3!8m2!3d30.1251164!4d31.3469432?hl=en&entry=ttu&g_ep=EgoyMDI2MTAyMC4wIKXMDSoASAFQAw%3D%3D",
 
   social: {
@@ -21,6 +21,4 @@ const profile = {
     tiktok: "",
     youtube: ""
   },
-
-  vcard: "contact.vcf"
 };

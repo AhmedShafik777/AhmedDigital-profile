@@ -12,6 +12,35 @@ function setExternalLink(element, url) {
   element.href = url;
 }
 
+function escapeVCard(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\\/g, "\\\\")
+    .replace(/\r?\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+}
+
+function createVCard() {
+  const lines = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    "N;CHARSET=UTF-8:;;;;",
+    `FN;CHARSET=UTF-8:${escapeVCard(profile.name)}`
+  ];
+
+  if (profile.type === "company") {
+    lines.push(`ORG;CHARSET=UTF-8:${escapeVCard(profile.name)}`);
+  }
+  if (profile.title) lines.push(`TITLE;CHARSET=UTF-8:${escapeVCard(profile.title)}`);
+  if (profile.phone) lines.push(`TEL;TYPE=CELL:${escapeVCard(profile.phone)}`);
+  if (profile.email) lines.push(`EMAIL;TYPE=INTERNET:${escapeVCard(profile.email)}`);
+  if (profile.website) lines.push(`URL:${escapeVCard(profile.website)}`);
+
+  lines.push("END:VCARD");
+  return `${lines.join("\r\n")}\r\n`;
+}
+
 function renderProfile() {
   setText("profileName", profile.name);
   setText("profileTitle", profile.title);
@@ -23,6 +52,15 @@ function renderProfile() {
   image.alt = profile.type === "company"
     ? `شعار ${profile.name}`
     : `صورة ${profile.name}`;
+  image.classList.toggle("company-logo", profile.type === "company");
+
+  document.querySelectorAll(".brand-mark").forEach((mark) => {
+    const logo = mark.querySelector(".brand-logo");
+    if (!profile.logo || !logo) return;
+    logo.addEventListener("load", () => mark.classList.add("has-logo"), { once: true });
+    logo.addEventListener("error", () => mark.classList.remove("has-logo"), { once: true });
+    logo.src = profile.logo.trim();
+  });
 
   setExternalLink(byId("callBtn"), profile.phone ? `tel:${profile.phone}` : "");
   setExternalLink(byId("whatsappBtn"), profile.whatsapp
@@ -31,7 +69,11 @@ function renderProfile() {
   setExternalLink(byId("emailBtn"), profile.email ? `mailto:${profile.email}` : "");
   setExternalLink(byId("websiteBtn"), profile.website);
   setExternalLink(byId("locationBtn"), profile.location);
-  setExternalLink(byId("vcardBtn"), profile.vcard);
+  const vcardButton = byId("vcardBtn");
+  vcardButton.href = URL.createObjectURL(
+    new Blob([createVCard()], { type: "text/vcard;charset=utf-8" })
+  );
+  vcardButton.download = "contact.vcf";
 
   const socialLabels = {
     facebook: "فيسبوك",
